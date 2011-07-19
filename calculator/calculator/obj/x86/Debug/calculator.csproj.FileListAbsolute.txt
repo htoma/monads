@@ -1,5 +1,0 @@
-D:\workaps-c#\calculator\calculator\bin\Debug\calculator.exe
-D:\workaps-c#\calculator\calculator\bin\Debug\calculator.pdb
-D:\workaps-c#\calculator\calculator\obj\x86\Debug\ResolveAssemblyReference.cache
-D:\workaps-c#\calculator\calculator\obj\x86\Debug\calculator.exe
-D:\workaps-c#\calculator\calculator\obj\x86\Debug\calculator.pdb
