@@ -1,5 +1,0 @@
-D:\workaps-c#\expressionMonad\expressionMonad\bin\Debug\expressionMonad.exe
-D:\workaps-c#\expressionMonad\expressionMonad\bin\Debug\expressionMonad.pdb
-D:\workaps-c#\expressionMonad\expressionMonad\obj\x86\Debug\ResolveAssemblyReference.cache
-D:\workaps-c#\expressionMonad\expressionMonad\obj\x86\Debug\expressionMonad.exe
-D:\workaps-c#\expressionMonad\expressionMonad\obj\x86\Debug\expressionMonad.pdb
