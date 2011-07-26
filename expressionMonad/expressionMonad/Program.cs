@@ -112,19 +112,19 @@ namespace expressionMonad
     // helper class
     static class Extensions
     {
-        // result of compilation when passed a constant is a constant
+        // result of compilation when passed a constant is a function returning the constant
         public static Func<Args, int> Compile(this Constant c)
         {
             return x => c.Value;
         }
 
-        // result of compilation when passed an ArgsN is a function waiting to be evaluated
+        // result of compilation when passed an ArgsN is a function returning function waiting to be evaluated
         public static Func<Args, int> Compile(this ArgsN c)
         {
             return c.Func;
         }
 
-        // result of compiling an addition is the additon of the compiled operands
+        // result of compiling an addition is a function returning the additon of the compiled operands
         public static Func<Args, int> Compile(this Plus plus)
         {
             return x =>
@@ -133,7 +133,7 @@ namespace expressionMonad
                     select a + b)(x);
         }
 
-        // result of compiling a multiplication is the multiplication of compiled operands
+        // result of compiling a multiplication is a function returning the multiplication of compiled operands
         public static Func<Args, int> Compile(this Times times)
         {
             return x =>
@@ -156,13 +156,13 @@ namespace expressionMonad
         }
 
         // binder for function composition 
-        // not used in the current workflow, but I prefer to code it as inspiration for SelectMany
+        // not used in the current workflow, but I preferred to code it as an inspiration for SelectMany
         public static Func<Args, int> Bind(this Func<Args, int> first, Func<int, Func<Args, int>> second)
         {
             return x => second(first(x))(x);
         }
 
-        // permits expresiveness when composing Plus and Times
+        // permits expressiveness when composing Plus and Times
         public static Func<Args, int> SelectMany(this Func<Args, int> first,
             Func<int, Func<Args, int>> second,
             Func<int, int, int> s)
@@ -175,13 +175,13 @@ namespace expressionMonad
                        };
         }
 
-        // helper for avoiding exolicit creation of Constant variables
+        // helper for avoiding explicit creation of Constant variables
         public static Constant ToConstant(this int value)
         {
             return new Constant(value);
         }
 
-        // helper for avoiding exolicit creation of ArgsN variables
+        // helper for avoiding explicit creation of ArgsN variables
         public static ArgsN ToArgsN(this int n)
         {
             return new ArgsN(n);
