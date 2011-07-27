@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace expressionMonad
 {
-    // implements Expression Tree Monad (EDSL example taken from Bartosz Milewski article, see http://bartoszmilewski.wordpress.com/2011/07/11/monads-in-c/)
+        // implements Expression Tree Monad (EDSL example taken from Bartosz Milewski's article, see http://bartoszmilewski.wordpress.com/2011/07/11/monads-in-c/)
     class Program
     {
         static void Main()
@@ -39,6 +39,8 @@ namespace expressionMonad
     // using abstract class instead of interface because I need operator overloading
     abstract class Exp
     {
+        public abstract Func<Args, int> Compile();
+
         public static Plus operator +(Exp first, Exp second)
         {
             return new Plus(first, second);
@@ -60,6 +62,12 @@ namespace expressionMonad
         {
             Value = value;
         }
+
+        // result of compilation when passed a constant is a function returning the constant
+        public override Func<Args, int> Compile()
+        {
+            return x => Value;
+        }
     }
 
     // addition expression containing two operands
@@ -73,6 +81,15 @@ namespace expressionMonad
         {
             Exp1 = exp1;
             Exp2 = exp2;
+        }
+
+        // result of compiling an addition is a function returning the additon of the compiled operands
+        public override Func<Args, int> Compile()
+        {
+            return
+                    from a in Exp1.Compile()
+                    from b in Exp2.Compile()
+                    select a + b;
         }
     }
 
@@ -88,6 +105,15 @@ namespace expressionMonad
             Exp1 = exp1;
             Exp2 = exp2;
         }
+
+        // result of compiling a multiplication is a function returning the multiplication of compiled operands
+        public override Func<Args, int> Compile()
+        {
+            return
+                    from a in Exp1.Compile()
+                    from b in Exp2.Compile()
+                    select a * b;
+        }
     }
 
     // expression that holds a program (action on given list of int)
@@ -102,6 +128,12 @@ namespace expressionMonad
             Func = GetArgs(n);
         }
 
+        // result of compilation when passed an ArgsN is a function returning function waiting to be evaluated
+        public override Func<Args, int> Compile()
+        {
+            return Func;
+        }
+
         // helper
         public static Func<Args, int> GetArgs(int n)
         {
@@ -112,49 +144,6 @@ namespace expressionMonad
     // helper class
     static class Extensions
     {
-        // result of compilation when passed a constant is a function returning the constant
-        public static Func<Args, int> Compile(this Constant c)
-        {
-            return x => c.Value;
-        }
-
-        // result of compilation when passed an ArgsN is a function returning function waiting to be evaluated
-        public static Func<Args, int> Compile(this ArgsN c)
-        {
-            return c.Func;
-        }
-
-        // result of compiling an addition is a function returning the additon of the compiled operands
-        public static Func<Args, int> Compile(this Plus plus)
-        {
-            return x =>
-                   (from a in Compile(plus.Exp1)
-                    from b in Compile(plus.Exp2)
-                    select a + b)(x);
-        }
-
-        // result of compiling a multiplication is a function returning the multiplication of compiled operands
-        public static Func<Args, int> Compile(this Times times)
-        {
-            return x =>
-                   (from a in Compile(times.Exp1)
-                    from b in Compile(times.Exp2)
-                    select a * b)(x);
-        }
-
-        // I wasn't so inspired here, I had to find a substitute for template specialization
-        public static Func<Args, int> Compile(Exp c)
-        {
-            if (c is ArgsN)
-                return Compile(c as ArgsN);
-            if (c is Plus)
-                return Compile(c as Plus);
-            if (c is Times)
-                return Compile(c as Times);
-
-            return Compile(c as Constant);
-        }
-
         // binder for function composition 
         // not used in the current workflow, but I preferred to code it as an inspiration for SelectMany
         public static Func<Args, int> Bind(this Func<Args, int> first, Func<int, Func<Args, int>> second)
@@ -168,11 +157,11 @@ namespace expressionMonad
             Func<int, int, int> s)
         {
             return x =>
-                       {
-                           int res1 = first(x);
-                           int res2 = second(first(x))(x);
-                           return s(res1, res2);
-                       };
+            {
+                int res1 = first(x);
+                int res2 = second(first(x))(x);
+                return s(res1, res2);
+            };
         }
 
         // helper for avoiding explicit creation of Constant variables
