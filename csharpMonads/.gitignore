@@ -1,6 +1,6 @@
 bin/
 obj/
 _ReSharper*/
-*.ReSharper
+*.ReSharper.user
 
 
